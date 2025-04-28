@@ -1,0 +1,16 @@
+# ROS2工作空间忽略项
+build/
+install/
+log/
+*.pyc
+__pycache__/
+*.so
+*.o
+*.a
+*.la
+*.lo
+*.swp
+*~
+.DS_Store
+.vscode/
+.idea/ 
