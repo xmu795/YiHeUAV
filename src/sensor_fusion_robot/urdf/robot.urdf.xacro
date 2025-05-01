@@ -11,6 +11,9 @@
   <material name="white">
     <color rgba="1 1 1 1"/>
   </material>
+  <material name="red">
+    <color rgba="0.8 0 0 1"/>
+  </material>
 
   <!-- 底盘尺寸参数 -->
   <xacro:property name="chassis_length" value="0.6"/>
@@ -224,9 +227,34 @@
     <joint name="lidar_joint" type="fixed">
     <parent link="sensor_platform_link"/>
     <child link="lidar_link"/>
-    <origin xyz="0 0 0.06" rpy="0 0 0"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
   </joint>
 
+  <!-- IMU模型 -->
+  <link name="imu_link">
+    <visual>
+      <geometry>
+        <box size="0.03 0.03 0.01"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.03 0.03 0.01"/>
+      </geometry>
+    </collision>
+    <xacro:box_inertia mass="0.01" x="0.03" y="0.03" z="0.01"/>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="sensor_platform_link"/>
+    <child link="imu_link"/>
+    <origin xyz="0.05 0 0.015" rpy="0 0 0"/>
+  </joint>
+
+  <gazebo reference="imu_link">
+    <material>Gazebo/Red</material>
+  </gazebo>
   <!-- Gazebo配置 -->
   <gazebo reference="base_link">
     <material>Gazebo/Blue</material>
@@ -314,15 +342,21 @@
     <ray>
       <scan>
         <horizontal>
-          <samples>360</samples>
+          <samples>640</samples>
           <resolution>1</resolution>
-          <min_angle>-3.14159</min_angle>
-          <max_angle>3.14159</max_angle>
+          <min_angle>-1.396263</min_angle>
+          <max_angle>1.396263</max_angle>
         </horizontal>
+        <vertical>
+          <samples>32</samples>
+          <resolution>1</resolution>
+          <min_angle>-0.261799</min_angle>
+          <max_angle>0.261799</max_angle>
+        </vertical>
       </scan>
       <range>
-        <min>0.12</min>
-        <max>6.0</max>
+        <min>0.08</min>
+        <max>10.0</max>
         <resolution>0.01</resolution>
       </range>
       <noise>
@@ -337,8 +371,13 @@
       </ros>
       <topic>gazebo_ros_lidar/out</topic>
       <frame_name>lidar_link</frame_name>
+      <output_type>PointCloud2</output_type>
     </plugin>
   </sensor>
 </gazebo>
+  <! -- Todo: 修改雷达，使用https://github.com/stm32f303ret6/livox_laser_simulation_RO2的模型 -->
+
+  <!-- IMU Gazebo插件 -->
+ 
 
 </robot>

@@ -23,17 +23,36 @@ def generate_launch_description():
     # 世界文件路径
     world_file = os.path.join(pkg_path, 'worlds', 'empty.world')
     
+    # SLAM参数文件路径
+    slam_params_file = os.path.join(pkg_path, 'config', 'slam_params.yaml')
+    
     # 启动Gazebo
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
-            os.path.join(get_package_share_directory('gazebo_ros'), 
+            os.path.join(get_package_share_directory('gazebo_ros'),
                          'launch', 'gazebo.launch.py')
         ]),
         launch_arguments={
             'world': world_file,
             'verbose': 'true',
+            'use_sim_time': 'true'
         }.items(),
     )
+    
+    # 启动SLAM节点
+    async_slam_toolbox_node = Node(
+        package='slam_toolbox',
+        executable='async_slam_toolbox_node',
+        name='slam_toolbox',
+        output='screen',
+        parameters=[
+          slam_params_file, # 加载参数文件
+          {'use_sim_time': True} # 告知 SLAM Toolbox 使用仿真时间
+        ],
+    )
+    # 启动Rviz
+    
+    
     
     # 机器人状态发布器
     robot_state_publisher = Node(
@@ -41,7 +60,8 @@ def generate_launch_description():
         executable='robot_state_publisher',
         name='robot_state_publisher',
         output='screen',
-        parameters=[{'robot_description': robot_description_raw}]
+        parameters=[{'robot_description': robot_description_raw,
+                     'use_sim_time': True}]
     )
     
     # 在Gazebo中加载机器人模型
@@ -69,5 +89,6 @@ def generate_launch_description():
         gazebo,
         robot_state_publisher,
         spawn_entity,
+        async_slam_toolbox_node,
         cmd_info
     ]) 
