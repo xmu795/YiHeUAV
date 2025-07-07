@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(sensor_fusion_robot)
+project(uav_interfaces)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -7,40 +7,15 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(gazebo_ros REQUIRED)
-find_package(robot_state_publisher REQUIRED)
-find_package(xacro REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(geometry_msgs REQUIRED)
 
-# 安装Python脚本
-install(PROGRAMS
-  src/test_robot_movement.py
-  DESTINATION lib/${PROJECT_NAME}
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "action/MoveToTarget.action"
+    DEPENDENCIES geometry_msgs
 )
 
-# 安装launch文件
-install(DIRECTORY
-  launch
-  DESTINATION share/${PROJECT_NAME}
-)
-
-# 安装URDF文件
-install(DIRECTORY
-  urdf
-  DESTINATION share/${PROJECT_NAME}
-)
-
-# 安装Worlds文件
-install(DIRECTORY
-  worlds
-  DESTINATION share/${PROJECT_NAME}
-)
-
-# 安装配置文件（如有）
-install(DIRECTORY
-  config
-  DESTINATION share/${PROJECT_NAME}
-)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

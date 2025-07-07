@@ -1,22 +1,21 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>sensor_fusion_robot</name>
+  <name>uav_bt</name>
   <version>0.0.0</version>
-  <description>简单的传感器融合机器人底盘</description>
+  <description>TODO: Package description</description>
   <maintainer email="1120231016@bit.edu.cn">wwm</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
-  <depend>rclpy</depend>
-  <depend>gazebo_ros</depend>
-  <depend>robot_state_publisher</depend>
-  <depend>xacro</depend>
+  <depend>behaviortree_cpp_v3</depend>
   <depend>geometry_msgs</depend>
-  <depend>slam_toolbox</depend>
+  <depend>std_msgs</depend>
+  <depend>uav_interfaces</depend>
 
+  <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 

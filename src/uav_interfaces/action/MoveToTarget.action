@@ -1,0 +1,8 @@
+geometry_msgs/PointStamped target_point
+
+---
+bool success
+string message
+---
+geometry_msgs/PointStamped current_point
+float64 current_distance

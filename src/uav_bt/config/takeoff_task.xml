@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root takeoff_tree = "TakeoffTaskTree">
+    <BehaviorTree ID = "TakeoffTaskTree">
+        <!--
+        主任务：起飞至指定高度
+        执行顺序：
+        1. 输入起飞命令
+        2. 检查MavLink连接、D435i相机和激光雷达
+        3. 起飞至5米高度
+        4. 等待输入命令
+        5. 输入降落命令
+        6. 降落
+        -->
+            <Fallback name="DroneDecisionLogic">            
+                <Sequence name= "TakeOffSequence">
+                    <IsOnGround name="CheckIfOnGround"/>
+                    <CheckCommand command_to_check="TAKEOFF" current_command="{command}"/>
+                    <MoveToTarget target_altitude="10.0"/>
+                    <UpdateTimestamp timestamp_output="{last_activity_time}"/>
+                    <ClearCommand command_to_clear="{command}"/>
+                </Sequence>
+                <Sequence name="LandingSequence">
+                    <CheckCommand command_to_check="LAND" current_command="{command}"/>
+                    <Land/>
+                    <ClearCommand command_to_clear="{command}"/>
+                </Sequence>
+                <Sequence name="TimeoutLandingRoutine">
+                    <IsInAir/>
+                    <IsTimeoutReached timeout_ms="30000" start_time="{last_activity_time}"/>
+                    <PrintMessage message="[AUTO] Timeout reached! Landing automatically."/>
+                    <Land/>
+                </Sequence>
+                <Sequence name="HoveringRoutine">
+                    <IsInAir/>
+                    <AlwaysSuccess name="Hovering"/>
+                </Sequence>
+                <AlwaysSuccess name="OnGround"/>
+            </Fallback>
+        </BehaviorTree>
+</root>
+
