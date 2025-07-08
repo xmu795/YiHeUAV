@@ -14,21 +14,23 @@
             <Fallback name="DroneDecisionLogic">            
                 <Sequence name= "TakeOffSequence">
                     <IsOnGround name="CheckIfOnGround"/>
-                    <CheckCommand command_to_check="TAKEOFF" current_command="{command}"/>
+                    <PublishStatus status="TAKEOFF"/>
                     <MoveToTarget target_altitude="10.0"/>
                     <UpdateTimestamp timestamp_output="{last_activity_time}"/>
-                    <ClearCommand command_to_clear="{command}"/>
+                    <ClearCommand status="HOVER"/>
                 </Sequence>
                 <Sequence name="LandingSequence">
-                    <CheckCommand command_to_check="LAND" current_command="{command}"/>
+                    <PublishStatus status="LAND"/>
                     <Land/>
-                    <ClearCommand command_to_clear="{command}"/>
+                    <ClearCommand status="ON_GROUND"/>
                 </Sequence>
                 <Sequence name="TimeoutLandingRoutine">
                     <IsInAir name="CheckIfInAir"/>
                     <IsTimeoutReached timeout_ms="30000" start_time="{last_activity_time}"/>
                     <PrintMessage message="[AUTO] Timeout reached! Landing automatically."/>
+                    <PublishStatus status="LAND"/>
                     <Land/>
+                    <ClearCommand status="ON_GROUND"/>
                 </Sequence>
                 <Sequence name="HoveringRoutine">
                     <IsInAir/>
