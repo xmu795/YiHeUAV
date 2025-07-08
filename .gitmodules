@@ -1,3 +1,6 @@
-[submodule "src/realsense-ros"]
-	path = src/realsense-ros
+[submodule "src/third_party/BehaviorTree"]
+	path = src/third_party/BehaviorTree
+	url = https://github.com/BehaviorTree/BehaviorTree.CPP
+[submodule "src/third_party/realsense-ros"]
+	path = src/third_party/realsense-ros
 	url = https://github.com/IntelRealSense/realsense-ros.git

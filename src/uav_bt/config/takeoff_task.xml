@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<root takeoff_tree = "TakeoffTaskTree">
+<root BTCPP_format="4">
     <BehaviorTree ID = "TakeoffTaskTree">
         <!--
         主任务：起飞至指定高度
         执行顺序：
         1. 输入起飞命令
         2. 检查MavLink连接、D435i相机和激光雷达
-        3. 起飞至5米高度
+        3. 起飞至10米高度
         4. 等待输入命令
         5. 输入降落命令
         6. 降落
@@ -25,7 +25,7 @@
                     <ClearCommand command_to_clear="{command}"/>
                 </Sequence>
                 <Sequence name="TimeoutLandingRoutine">
-                    <IsInAir/>
+                    <IsInAir name="CheckIfInAir"/>
                     <IsTimeoutReached timeout_ms="30000" start_time="{last_activity_time}"/>
                     <PrintMessage message="[AUTO] Timeout reached! Landing automatically."/>
                     <Land/>
@@ -38,4 +38,3 @@
             </Fallback>
         </BehaviorTree>
 </root>
-

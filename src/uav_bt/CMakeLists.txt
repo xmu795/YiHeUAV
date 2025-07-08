@@ -8,11 +8,13 @@ endif()
 # 寻找依赖包
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(behaviortree_cpp_v3 REQUIRED)
+find_package(behaviortree_cpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(uav_interfaces REQUIRED)
+
+
 
 # 包含头文件目录
 include_directories(include)
@@ -28,7 +30,7 @@ add_executable(mock_uav_tester
 # 链接依赖库
 ament_target_dependencies(mock_uav_node
   rclcpp
-  behaviortree_cpp_v3
+  behaviortree_cpp
   geometry_msgs
   std_msgs
   rclcpp_action
