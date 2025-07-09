@@ -2,6 +2,7 @@
 <root BTCPP_format="4">
     <BehaviorTree ID = "TakeoffTaskTree">
         <!--
+        整个行为树由一个Logical ROS2 Node托管，Logical ROS2 Node的职责是运行BT
         主任务：起飞至指定高度
         执行顺序：
         1. 输入起飞命令
@@ -14,23 +15,23 @@
             <Fallback name="DroneDecisionLogic">            
                 <Sequence name= "TakeOffSequence">
                     <IsOnGround name="CheckIfOnGround"/>
-                    <PublishStatus status="TAKEOFF"/>
-                    <MoveToTarget target_altitude="10.0"/>
+                    <PublishStatus topic_name="drone/status" status="TAKEOFF"/>
+                    <MoveToTarget target_point = "{target_point}"/>
                     <UpdateTimestamp timestamp_output="{last_activity_time}"/>
-                    <ClearCommand status="HOVER"/>
+                    <PublishStatus topic_name="drone/status" status="HOVER"/>
                 </Sequence>
                 <Sequence name="LandingSequence">
-                    <PublishStatus status="LAND"/>
+                    <PublishStatus topic_name="drone/status" status="LAND"/>
                     <Land/>
-                    <ClearCommand status="ON_GROUND"/>
+                    <PublishStatus topic_name="drone/status" status="ON_GROUND"/>
                 </Sequence>
                 <Sequence name="TimeoutLandingRoutine">
                     <IsInAir name="CheckIfInAir"/>
                     <IsTimeoutReached timeout_ms="30000" start_time="{last_activity_time}"/>
                     <PrintMessage message="[AUTO] Timeout reached! Landing automatically."/>
-                    <PublishStatus status="LAND"/>
+                    <PublishStatus topic_name="drone/status" status="LAND"/>
                     <Land/>
-                    <ClearCommand status="ON_GROUND"/>
+                    <PublishStatus topic_name="drone/status" status="ON_GROUND"/>
                 </Sequence>
                 <Sequence name="HoveringRoutine">
                     <IsInAir/>
