@@ -1,0 +1,9 @@
+geometry_msgs/PointStamped proposed_point
+float64 search_radius
+string tag_name
+---
+bool success
+geometry_msgs/PointStamped found_point
+string message
+---
+geometry_msgs/PointStamped current_position

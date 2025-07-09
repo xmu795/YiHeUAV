@@ -92,5 +92,16 @@ public:
     BT::NodeStatus onFailure(ActionNodeErrorCode error) override;
 };
 
+/**
+ * @brief ReleaseCargoNode 类
+ * 该类用于控制无人机释放货物。
+ * @param name 节点名称
+ * @param config 节点配置
+ * @param params ROS2 节点参数(包含了ROS2节点句柄)
+ * @note 该类继承自 BT::RosActionNode 类
+ */
+class ReleaseCargoNode : public BT::RosActionNode<ReleaseCargo>
+
+}
 
 #endif // UAV_BT_ACTION_NODES_HPP
