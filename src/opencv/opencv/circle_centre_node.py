@@ -1,12 +1,12 @@
 """
-@file circle_centre_node.py
-@brief 圆环中心节点，发布圆环中心坐标
-@details 编写CircleCentre节点，用于订阅d435i相机的/camera/color/image_raw颜色图话题和/camera/depth/image_raw深度图话题
-         并使用OpenCV进行圆环检测和深度转换，发布/opencv/circle_centre圆环中心坐标话题
-@note 初步编写，尚未仿真调试，d435i相机内参待修改，话题和坐标系变换待验证
-@author 周鑫鹏
-@date 2025-07-08
-@version 1.0
+@file       circle_centre_node.py
+@brief      圆环中心节点，发布圆环中心坐标
+@details    编写CircleCentre节点，用于订阅d435i相机的/camera/color/image_raw颜色图话题和/camera/depth/image_raw深度图话题
+            并使用OpenCV进行圆环检测和深度转换，发布/opencv/circle_centre圆环中心坐标话题
+@note       连接到d435i相机，修改相机内参与订阅话题
+@author     周鑫鹏
+@date       2025-07-11
+@version    2.0
 """
 
 import rclpy
@@ -25,12 +25,12 @@ class CircleCentre(Node):
         # 订阅颜色图和深度图话题
         self.color_sub = self.create_subscription(
             Image,
-            '/camera/color/image_raw',  # 待修改
+            '/camera/camera/color/image_raw',
             self.color_image_callback,
             10)
         self.depth_sub = self.create_subscription(
             Image,
-            '/camera/depth/image_raw',  # 待修改
+            '/camera/camera/depth/image_rect_raw',
             self.depth_image_callback,
             10)
 
@@ -109,10 +109,10 @@ class CircleCentre(Node):
                     depth_in_meters = depth_value / 1000.0
 
                     # 相机内参，待修改
-                    fx = 615.0  # 焦距
-                    fy = 615.0  # 焦距
-                    cx = 320.0  # 主点 (图像宽度/2)
-                    cy = 240.0  # 主点 (图像高度/2)
+                    fx = 612.0610961914062  # 焦距
+                    fy = 612.2150268554688  # 焦距
+                    cx = 319.97662353515625 # 主点 (图像宽度/2)
+                    cy = 248.469970703125   # 主点 (图像高度/2)
 
                     # 将像素坐标转换为相机坐标系下的3D坐标
                     point_x = (x - cx) * depth_in_meters / fx
@@ -133,14 +133,14 @@ class CircleCentre(Node):
                     circle_centre_msg.point.y = float(base_link_y)
                     circle_centre_msg.point.z = float(base_link_z)                    
                     self.circle_centre_pub.publish(circle_centre_msg)
-                    self.get_logger().info(f"Detected circle centre (3D): X={base_link_x:.2f}, Y={base_link_y:.2f}, Z={base_link_z:.2f}")
+                    self.get_logger().info(f"Detected circle centre (3D): X={base_link_x:.4f}, Y={base_link_y:.4f}, Z={base_link_z:.4f}")
                 
                 else:
                     self.get_logger().warn(f"Circle center ({x},{y}) is out of depth image bounds.")
         
         # 显示处理后的图像，用于调试
-        # cv2.imshow("Color Image", color_image)
-        # cv2.waitKey(1)
+        cv2.imshow("Color Image", color_image)
+        cv2.waitKey(1)
 
 def main(args=None):
     rclpy.init(args=args)
