@@ -3,10 +3,10 @@
 @brief      圆环中心节点，发布圆环中心坐标
 @details    编写CircleCentre节点，用于订阅d435i相机的/camera/color/image_raw颜色图话题和/camera/depth/image_raw深度图话题
             并使用OpenCV进行圆环检测和深度转换，发布/opencv/circle_centre圆环中心坐标话题
-@note       连接到d435i相机，修改相机内参与订阅话题
+@note       连接到d435i相机，修改圆心深度坐标解算方式：获取圆环边缘的深度值并计算平均深度
 @author     周鑫鹏
 @date       2025-07-11
-@version    2.0
+@version    3.0
 """
 
 import rclpy
@@ -96,47 +96,71 @@ class CircleCentre(Node):
 
         if circles is not None:
             circles = np.round(circles[0, :]).astype("int")
-            for (x, y, r) in circles:
-                # 绘制圆环和圆心
-                cv2.circle(color_image, (x, y), r, (0, 255, 0), 4)
-                cv2.rectangle(color_image, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
+            # 只处理检测到的第一个圆
+            x, y, r = circles[0]
+            # 绘制圆环和圆心
+            cv2.circle(color_image, (x, y), r, (0, 255, 0), 4)
+            cv2.rectangle(color_image, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
 
-                # 获取圆心处的深度值
-                # 确保坐标在图像范围内
-                if 0 <= y < depth_image.shape[0] and 0 <= x < depth_image.shape[1]:
-                    depth_value = depth_image[y, x]
-                    # 深度值通常以毫米为单位，转换为米
-                    depth_in_meters = depth_value / 1000.0
+            # 获取圆心处的深度值
+            # 确保坐标在图像范围内
+            if 0 <= y < depth_image.shape[0] and 0 <= x < depth_image.shape[1]:
+                # 获取圆环边缘的深度值
+                edge_depths = []
+                num_samples = 36  # 采样点数量
+                for i in range(num_samples):
+                    angle = 2 * np.pi * i / num_samples
+                    # 计算边缘点的坐标
+                    ex = int(x + r * np.cos(angle))
+                    ey = int(y + r * np.sin(angle))
 
-                    # 相机内参，待修改
-                    fx = 612.0610961914062  # 焦距
-                    fy = 612.2150268554688  # 焦距
-                    cx = 319.97662353515625 # 主点 (图像宽度/2)
-                    cy = 248.469970703125   # 主点 (图像高度/2)
-
-                    # 将像素坐标转换为相机坐标系下的3D坐标
-                    point_x = (x - cx) * depth_in_meters / fx
-                    point_y = (y - cy) * depth_in_meters / fy
-                    point_z = depth_in_meters
-
-                    # 创建PointStamped消息并发布
-                    circle_centre_msg = PointStamped()
-                    circle_centre_msg.header.stamp = self.get_clock().now().to_msg()
-                    
-                    # 将d435i相机坐标系下的坐标转换为ROS base_link坐标系
-                    # d435i: x轴向右，y轴向下，z轴向前
-                    # base_link: x轴向前，y轴向左，z轴向上
-                    base_link_x = point_z
-                    base_link_y = -point_x
-                    base_link_z = -point_y
-                    circle_centre_msg.point.x = float(base_link_x)
-                    circle_centre_msg.point.y = float(base_link_y)
-                    circle_centre_msg.point.z = float(base_link_z)                    
-                    self.circle_centre_pub.publish(circle_centre_msg)
-                    self.get_logger().info(f"Detected circle centre (3D): X={base_link_x:.4f}, Y={base_link_y:.4f}, Z={base_link_z:.4f}")
+                    # 确保边缘点在图像范围内
+                    if 0 <= ey < depth_image.shape[0] and 0 <= ex < depth_image.shape[1]:
+                        edge_depths.append(depth_image[ey, ex])
                 
+                if edge_depths:
+                    # 过滤掉无效深度值（0）并计算平均深度
+                    valid_depths = [d for d in edge_depths if d > 0]
+                    if valid_depths:
+                        depth_value = np.mean(valid_depths)
+                        # 深度值通常以毫米为单位，转换为米
+                        depth_in_meters = depth_value / 1000.0
+                    else:
+                        self.get_logger().warn(f"No valid depth values found for circle edges.")
+                        return
                 else:
-                    self.get_logger().warn(f"Circle center ({x},{y}) is out of depth image bounds.")
+                    self.get_logger().warn(f"No edge points found within depth image bounds.")
+                    return
+
+                # 相机内参
+                fx = 612.0610961914062  # 焦距
+                fy = 612.2150268554688  # 焦距
+                cx = 319.97662353515625 # 主点
+                cy = 248.469970703125   # 主点
+
+                # 将像素坐标转换为相机坐标系下的3D坐标
+                point_x = (x - cx) * depth_in_meters / fx
+                point_y = (y - cy) * depth_in_meters / fy
+                point_z = depth_in_meters
+
+                # 创建PointStamped消息并发布
+                circle_centre_msg = PointStamped()
+                circle_centre_msg.header.stamp = self.get_clock().now().to_msg()
+                
+                # 将d435i相机坐标系下的坐标转换为ROS base_link坐标系
+                # d435i: x轴向右，y轴向下，z轴向前
+                # base_link: x轴向前，y轴向左，z轴向上
+                base_link_x = point_z
+                base_link_y = -point_x
+                base_link_z = -point_y
+                circle_centre_msg.point.x = float(base_link_x)
+                circle_centre_msg.point.y = float(base_link_y)
+                circle_centre_msg.point.z = float(base_link_z)
+                self.circle_centre_pub.publish(circle_centre_msg)
+                self.get_logger().info(f"Detected circle centre (3D): X={base_link_x:.4f}, Y={base_link_y:.4f}, Z={base_link_z:.4f}")
+            
+            else:
+                self.get_logger().warn(f"Circle center ({x},{y}) is out of depth image bounds.")
         
         # 显示处理后的图像，用于调试
         cv2.imshow("Color Image", color_image)
