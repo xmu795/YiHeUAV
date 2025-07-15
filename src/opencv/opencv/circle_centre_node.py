@@ -1,7 +1,7 @@
 """
 @file       circle_centre_node.py
 @brief      圆环中心节点，发布圆环中心坐标
-@details    编写CircleCentre节点，用于订阅d435i相机的/camera/color/image_raw颜色图话题和/camera/depth/image_raw深度图话题
+@details    编写circle_centre_node节点，用于订阅d435i相机的/camera/color/image_raw颜色图话题和/camera/depth/image_raw深度图话题
             并使用OpenCV进行圆环检测和深度转换，发布/opencv/circle_centre圆环中心坐标话题
 @note       连接到d435i相机，修改圆心深度坐标解算方式：获取圆环边缘的深度值并计算平均深度
 @author     周鑫鹏
