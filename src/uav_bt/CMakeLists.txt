@@ -62,9 +62,9 @@ install(TARGETS mock_uav_tester
 )
 
 # 安装Launch文件
-install(DIRECTORY launch
-  DESTINATION share/${PROJECT_NAME}/
-)
+# install(DIRECTORY launch
+#   DESTINATION share/${PROJECT_NAME}/
+# )
 
 
 
