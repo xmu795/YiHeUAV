@@ -20,7 +20,8 @@ setup(
     # tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'dcam_pub_dist_sensor = sensors2dds.dcam_pub_dist_sensor:main'
+            'dcam_pub_dist_sensor = sensors2dds.dcam_pub_dist_sensor:main',
+            'dcam_pub_vio = sensors2dds.dcam_pub_vio:main'
         ],
     },
 )
