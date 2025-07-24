@@ -1,8 +1,8 @@
 """
-@file       circle_centre_node.py
+@file       circle_centre.py
 @brief      圆环中心节点，发布圆环中心坐标
-@details    编写circle_centre_node节点，用于订阅d435i相机的/camera/color/image_raw颜色图话题和/camera/depth/image_raw深度图话题
-            并使用OpenCV进行圆环检测和深度转换，发布/opencv/circle_centre圆环中心坐标话题
+@details    编写circle_centre节点，用于订阅d435i相机的/camera/camera/color/image_raw颜色图话题和/camera/camera/depth/image_raw深度图话题
+            并使用OpenCV进行圆环检测和深度转换，发布/goal/circle_centre圆环中心坐标话题
 @note       连接到d435i相机，修改圆心深度坐标解算方式：获取圆环边缘的深度值并计算平均深度
 @author     周鑫鹏
 @date       2025-07-11
@@ -19,7 +19,7 @@ import numpy as np
 
 class CircleCentre(Node):
     def __init__(self):
-        super().__init__('CircleCentre')
+        super().__init__('circle_centre')
         self.bridge = CvBridge()
 
         # 订阅颜色图和深度图话题
@@ -37,14 +37,14 @@ class CircleCentre(Node):
         # 发布圆环中心坐标话题
         self.circle_centre_pub = self.create_publisher(
             PointStamped,
-            '/opencv/circle_centre',
+            '/goal/circle_centre',
             10)
 
         self.latest_color_image = None
         self.latest_depth_image = None
         self.camera_received_first_time = False
         self.warning_timer = self.create_timer(1.0, self.check_camera_feed) # 每秒检查一次
-        self.get_logger().info('Circle Detection Node has been started.')
+        self.get_logger().info('Circle Centre Node has been started.')
 
     def color_image_callback(self, msg):
         try:

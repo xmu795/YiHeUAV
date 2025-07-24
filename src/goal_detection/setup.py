@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'opencv'
+package_name = 'goal_detection'
 
 setup(
     name=package_name,
@@ -20,7 +20,8 @@ setup(
     # tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'circle_centre_node = opencv.circle_centre_node:main'
+            'circle_centre = goal_detection.circle_centre:main',
+            'door_centre = goal_detection.door_centre:main'
         ],
     },
 )
