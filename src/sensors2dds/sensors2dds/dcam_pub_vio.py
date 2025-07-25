@@ -7,14 +7,14 @@
 @note       需要确保VINS系统输出的坐标系与PX4期望的FRD（前-右-下）坐标系对齐
 @author     周鑫鹏
 @date       2025-07-24
-@version    1.0
+@version    2.0
 """
 
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 from nav_msgs.msg import Odometry
-from px4_msgs.msg import VehicleVisualOdometry
+from px4_msgs.msg import VehicleOdometry
 import numpy as np
 
 class DcamPubVIO(Node):
@@ -52,7 +52,7 @@ class DcamPubVIO(Node):
         # --- 创建发布者 ---
         # 发布转换后的视觉里程计消息给PX4
         self.publisher = self.create_publisher(
-            VehicleVisualOdometry,
+            VehicleOdometry,
             visual_odometry_topic,
             10
         )
@@ -61,7 +61,7 @@ class DcamPubVIO(Node):
         """
         处理收到的里程计消息的回调函数
         """
-        vio_msg = VehicleVisualOdometry()
+        vio_msg = VehicleOdometry()
 
         # --- 时间戳 ---
         vio_msg.timestamp = int(self.get_clock().now().nanoseconds / 1000) # 当前时间
@@ -69,8 +69,8 @@ class DcamPubVIO(Node):
 
         # --- 坐标系定义 ---
         # WARN: 需要上游的VINS节点已经将坐标系处理为FRD
-        vio_msg.pose_frame = VehicleVisualOdometry.POSE_FRAME_FRD
-        vio_msg.velocity_frame = VehicleVisualOdometry.VELOCITY_FRAME_FRD
+        vio_msg.pose_frame = VehicleOdometry.POSE_FRAME_FRD
+        vio_msg.velocity_frame = VehicleOdometry.VELOCITY_FRAME_FRD
 
         # --- 位置和姿态 ---
         position = msg.pose.pose.position
