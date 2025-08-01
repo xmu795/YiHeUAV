@@ -1,0 +1,16 @@
+vslam_to_px4_node:
+  ros__parameters:
+    # VSLAM topics
+    vslam_odom_topic: "/camera/odom/sample"
+    vslam_pose_topic: "/camera/pose"
+    
+    # PX4 topic
+    px4_odom_topic: "/fmu/out/vehicle_odometry"
+    
+    # Mode selection
+    use_pose_topic: false  # Set to true if you want to use pose instead of odometry
+    
+    # Quality parameters
+    min_quality_score: 50
+    max_covariance_position: 1.0
+    max_covariance_orientation: 0.5
