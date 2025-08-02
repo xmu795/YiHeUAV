@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4">
+    <!-- 
+    测试 ArmNode 和 SetModeNode 的行为树
+    功能：
+    1. 首先解锁无人机 (ArmNode)
+    2. 然后每20秒间隔调用5次SetModeNode切换模式
+    3. 每次调用之间使用Sleep节点延时20秒
+    -->
+    <BehaviorTree ID="UAVTestTree">
+        <Sequence name="MainTestSequence">
+            <!-- 第一步：打印开始信息 -->
+            <PrintMessage message="=== UAV BT Test Started: Testing ArmNode and SetModeNode ===" />
+            
+            <!-- 第二步：解锁无人机 -->
+            <PrintMessage message="Step 1: Arming the UAV..." />
+            <ArmNode arm="true" />
+            <PrintMessage message="UAV armed successfully!" />
+            
+            <!-- 第三步：等待2秒让系统稳定 -->
+            <Sleep msec="2000" />
+            
+            <!-- 第四步：连续5次调用SetModeNode，每次间隔20秒 -->
+            <PrintMessage message="Step 2: Starting 5 mode switches with 20s intervals..." />
+            
+            <!-- 第1次模式切换 -->
+            <Sequence name="ModeSwitch1">
+                <PrintMessage message="Mode Switch 1/5: Setting to MANUAL mode" />
+                <SetModeNode mode="MANUAL" />
+                <PrintMessage message="Mode switched to MANUAL, waiting 20 seconds..." />
+                <Sleep msec="20000" />
+            </Sequence>
+            
+            <!-- 第2次模式切换 -->
+            <Sequence name="ModeSwitch2">
+                <PrintMessage message="Mode Switch 2/5: Setting to ALTCTL mode" />
+                <SetModeNode mode="ALTCTL" />
+                <PrintMessage message="Mode switched to ALTCTL, waiting 20 seconds..." />
+                <Sleep msec="20000" />
+            </Sequence>
+            
+            <!-- 第3次模式切换 -->
+            <Sequence name="ModeSwitch3">
+                <PrintMessage message="Mode Switch 3/5: Setting to POSCTL mode" />
+                <SetModeNode mode="POSCTL" />
+                <PrintMessage message="Mode switched to POSCTL, waiting 20 seconds..." />
+                <Sleep msec="20000" />
+            </Sequence>
+            
+            <!-- 第4次模式切换 -->
+            <Sequence name="ModeSwitch4">
+                <PrintMessage message="Mode Switch 4/5: Setting to AUTO_LOITER mode" />
+                <SetModeNode mode="AUTO_LOITER" />
+                <PrintMessage message="Mode switched to AUTO_LOITER, waiting 20 seconds..." />
+                <Sleep msec="20000" />
+            </Sequence>
+            
+            <!-- 第5次模式切换 -->
+            <Sequence name="ModeSwitch5">
+                <PrintMessage message="Mode Switch 5/5: Setting to OFFBOARD mode" />
+                <SetModeNode mode="OFFBOARD" />
+                <PrintMessage message="Mode switched to OFFBOARD - Test sequence completed!" />
+            </Sequence>
+            
+            <!-- 第五步：最后上锁无人机 -->
+            <Sleep msec="5000" />
+            <PrintMessage message="Step 3: Disarming the UAV..." />
+            <ArmNode arm="false" />
+            <PrintMessage message="=== UAV BT Test Completed Successfully! ===" />
+        </Sequence>
+    </BehaviorTree>
+    
+    <!-- 节点模型描述 (供Groot等工具使用) -->
+    <TreeNodesModel>
+        <!-- 自定义节点定义 -->
+        <Action ID="PrintMessage" editable="true">
+            <input_port name="message" default="Hello"/>
+        </Action>
+        
+        <Action ID="ArmNode" editable="true">
+            <input_port name="arm" default="true" 
+                       description="True to arm, false to disarm"/>
+        </Action>
+        
+        <Action ID="SetModeNode" editable="true">
+            <input_port name="mode" default="MANUAL" 
+                       description="Flight mode: MANUAL, ACRO, ALTCTL, POSCTL, AUTO_MISSION, AUTO_LOITER, AUTO_RTL, OFFBOARD"/>
+        </Action>
+        
+        <!-- BehaviorTree.CPP 内置节点 -->
+        <Action ID="Sleep" editable="true">
+            <input_port name="msec" default="1000" 
+                       description="Sleep time in milliseconds"/>
+        </Action>
+    </TreeNodesModel>
+</root>

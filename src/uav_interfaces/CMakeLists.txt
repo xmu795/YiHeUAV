@@ -13,6 +13,10 @@ find_package(geometry_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "action/MoveToTarget.action"
+  "action/SearchingPicture.action"
+  "srv/Arm.srv"
+  "srv/ReleaseCargo.srv"
+  "srv/SetMode.srv"
     DEPENDENCIES geometry_msgs
 )
 

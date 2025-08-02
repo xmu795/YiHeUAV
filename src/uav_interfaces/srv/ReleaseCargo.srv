@@ -1,0 +1,15 @@
+# Service to command the release of a specific cargo package.
+#
+# This service takes a cargo ID as input and triggers the release mechanism.
+# It returns a status indicating whether the operation was successful.
+
+# Request: The unique identifier for the cargo to be released.
+int16 cargo_id
+
+---
+
+# Response: Result of the cargo release operation.
+# success: true if the cargo was released successfully, false otherwise.
+# message: Human-readable message describing the outcome (e.g., "Cargo released" or "Error: Cargo ID not found").
+bool success
+string message

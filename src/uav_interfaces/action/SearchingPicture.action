@@ -1,9 +1,28 @@
+# Action to search for a specific visual tag within a given radius.
+#
+# This action defines a goal to search for a visual tag, provides feedback on
+# current position during search, and returns success status with found location.
+
+# Goal: Search parameters.
+# proposed_point: Central point of the search area.
+# search_radius: Radius in meters around proposed_point to search within.
+# tag_name: Identifier of the tag to be found.
 geometry_msgs/PointStamped proposed_point
 float64 search_radius
 string tag_name
+
 ---
+
+# Result: Outcome of the search operation.
+# success: true if the search was successful, false otherwise.
+# found_point: Coordinates where tag was located (only valid if success is true).
+# message: Human-readable information (e.g., error message).
 bool success
 geometry_msgs/PointStamped found_point
 string message
+
 ---
+
+# Feedback: Progress updates during search.
+# current_position: Current position of the searching agent (e.g., UAV).
 geometry_msgs/PointStamped current_position
