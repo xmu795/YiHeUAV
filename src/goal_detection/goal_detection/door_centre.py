@@ -3,10 +3,10 @@
 @brief      空心门中心节点，发布空心门中心坐标
 @details    编写door_centre节点，用于订阅d435i相机的/camera/camera/depth/image_rect_raw深度图话题
             并使用基于深度梯度的方法进行空心门检测和深度转换，发布/goal/door_centre空心门中心坐标话题
-@note       尚未连接到d435i相机进行部署测试
-@author     周鑫鹏
-@date       2025-07-24
-@version    1.0
+@note       重新标定相机内参，同时修改发布话题消息坐标系为FRD
+@author     FallThrive
+@date       2025-08-01
+@version    1.1
 """
 
 import rclpy
@@ -133,11 +133,11 @@ class DoorCentre(Node):
                     self.get_logger().warn(f"Door center ({center_x},{center_y}) is out of depth image bounds.")
                     return
 
-                # 相机内参 (需要根据实际相机参数调整)
-                fx = 612.0610961914062  # 焦距
-                fy = 612.2150268554688  # 焦距
-                cx = 319.97662353515625 # 主点
-                cy = 248.469970703125   # 主点
+                # 相机内参 (硬编码，需要根据实际相机内参调整)
+                fx = 914.8963087808214  # 焦距
+                fy = 914.819542655697   # 焦距
+                cx = 641.587421317452   # 主点
+                cy = 364.9757332447947  # 主点
 
                 # 将像素坐标转换为相机坐标系下的3D坐标
                 point_x = (center_x - cx) * depth_in_meters / fx
@@ -148,11 +148,11 @@ class DoorCentre(Node):
                 door_centre_msg = PointStamped()
                 door_centre_msg.header.stamp = self.get_clock().now().to_msg()
                 
-                # 将d435i相机坐标系下的坐标转换为ROS base_link坐标系(FLU)
+                # 将d435i相机坐标系下的坐标转换为FRD坐标系
                 # d435i: x轴向右，y轴向下，z轴向前
-                # base_link (FLU): x轴向前，y轴向左，z轴向上
+                # FRD: x轴向前，y轴向右，z轴向下
                 base_link_x = point_z
-                base_link_y = -point_x
+                base_link_y = point_x
                 # 无人机从竖直中轴线穿过即可，实际飞行高度设置好后保持即可，因此z坐标设为0
                 base_link_z = 0.0
                 door_centre_msg.point.x = float(base_link_x)
@@ -174,8 +174,8 @@ class DoorCentre(Node):
                         break
                 # 绘制中心点
                 cv2.circle(color_debug, (center_x, center_y), 5, (0, 0, 255), -1)
-                cv2.imshow("Door Detection Debug", color_debug)
-                cv2.waitKey(1)
+                # cv2.imshow("Door Detection Debug", color_debug)
+                # cv2.waitKey(1)
 
 def main(args=None):
     rclpy.init(args=args)
