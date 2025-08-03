@@ -9,14 +9,14 @@
 @note       场景中心坐标为相对相机主点RDF坐标系
 @author     FallThrive
 @date       2025-08-03
-@version    2.1
+@version    2.2
 """
 
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
 from std_msgs.msg import String, Int32
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import PointStamped
 import cv2
 from cv_bridge import CvBridge
 import numpy as np
@@ -107,7 +107,7 @@ class YOLOSceneNode(Node):
             10)
             
         self.centre_publisher = self.create_publisher(
-            Point,
+            PointStamped,
             '/yolo/scene/centre',
             10)
             
@@ -201,10 +201,12 @@ class YOLOSceneNode(Node):
                     category_id_msg.data = scene_id
                     
                     # 发布中心点坐标
-                    centre_point = Point()
-                    centre_point.x = relative_position[0]
-                    centre_point.y = relative_position[1]
-                    centre_point.z = relative_position[2]
+                    centre_point = PointStamped()
+                    centre_point.header.stamp = self.get_clock().now().to_msg()
+                    centre_point.header.frame_id = "camera_link"
+                    centre_point.point.x = relative_position[0]
+                    centre_point.point.y = relative_position[1]
+                    centre_point.point.z = relative_position[2]
                     self.centre_publisher.publish(centre_point)
                     
                     self.get_logger().info(
