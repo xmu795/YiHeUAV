@@ -9,7 +9,7 @@
 @note       场景中心坐标为相对相机主点RDF坐标系
 @author     FallThrive
 @date       2025-08-03
-@version    2.0
+@version    2.1
 """
 
 import rclpy
@@ -82,8 +82,8 @@ class YOLOSceneNode(Node):
         ])
         
         # 已知实物尺寸（硬编码）
-        self.real_width = 0.53
-        self.real_height = 0.48
+        self.real_width = 0.45
+        self.real_height = 0.45
         
         # 初始化图像桥接
         self.bridge = CvBridge()
