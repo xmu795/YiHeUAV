@@ -1,0 +1,17 @@
+# Service to arm or disarm the UAV.
+#
+# The request specifies whether to arm or disarm the vehicle. The response
+# indicates whether the command was successful and provides a corresponding
+# status message.
+
+# Request: Desired arm state.
+# arm: true to arm the UAV, false to disarm the UAV.
+bool arm
+
+---
+
+# Response: Result of the arm/disarm operation.
+# success: true if the operation was successful, false if it failed.
+# message: Human-readable information about the status (e.g., success message or error details).
+bool success
+string message

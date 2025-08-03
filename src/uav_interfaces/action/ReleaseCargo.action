@@ -1,6 +1,0 @@
-int16 CargoID
----
-bool success
-string message
----
-geometry_msgs/PointStamped release_point

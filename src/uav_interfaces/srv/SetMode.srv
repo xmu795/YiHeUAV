@@ -1,0 +1,18 @@
+# Service to set the operational mode of a UAV.
+#
+# This service provides an interface to change the UAV's operational mode.
+# The response indicates the result of the mode change request.
+
+# Request: The desired operational mode.
+# mode: Name of the mode to set (e.g., "GUIDED", "LOITER", "RTL").
+string mode
+
+---
+
+# Response: Result of the mode change operation.
+# current_state: Current mode of the UAV after processing the request.
+# success: true if the mode was successfully changed, false otherwise.
+# message: Human-readable information about the outcome (e.g., error message on failure).
+string current_state
+bool success
+string message

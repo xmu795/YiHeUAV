@@ -1,8 +1,24 @@
+# Action to move a UAV to a specific target point in 3D space.
+#
+# This action defines a goal for moving a UAV to a target point, provides feedback
+# on current position and distance to target, and returns success status.
+
+# Goal: Desired destination point for the UAV.
+# target_point: Target point with timestamp and frame_id for context.
 geometry_msgs/PointStamped target_point
 
 ---
+
+# Result: Outcome of the move action.
+# success: true if UAV reached target within tolerance, false otherwise.
+# message: Human-readable description of outcome (e.g., "Target reached" or "Failed to reach target").
 bool success
 string message
+
 ---
+
+# Feedback: Periodic updates on move action progress.
+# current_point: Current position of the UAV.
+# current_distance: Remaining Euclidean distance to target point.
 geometry_msgs/PointStamped current_point
 float64 current_distance
