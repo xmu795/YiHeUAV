@@ -5,11 +5,12 @@
 @brief      使用YOLOv11模型检测场景类别和中心坐标，并发布相关话题
 @details    订阅usb相机话题/image_raw，通过本地yolov11和权重文件检测场景
             发布场景类别名称话题/yolo/scene/name和ID话题/yolo/scene/id
-            发布场景中心坐标话题/yolo/scene/centre和长宽比话题/yolo/scene/aspect_ratio
+            发布场景中心坐标话题/yolo/scene/centre
+            发布场景长宽比话题/yolo/scene/aspect_ratio和置信度话题/yolo/scene/confidence
 @note       场景中心坐标为相对相机主点RDF坐标系
 @author     FallThrive
 @date       2025-08-06
-@version    4.0
+@version    4.1
 """
 
 import sys
@@ -81,25 +82,31 @@ class YOLOSceneNode(Node):
             self.image_callback,
             10)
             
-        # 发布话题
-        self.category_publisher = self.create_publisher(
+        # 创建发布器，分别发布场景名称、ID、长宽比和置信度
+        self.scene_name_publisher = self.create_publisher(
             String,
             '/yolo/scene/name',
             10)
             
-        self.category_id_publisher = self.create_publisher(
+        self.scene_id_publisher = self.create_publisher(
             Int32,
             '/yolo/scene/id',
-            10)
-            
-        self.centre_publisher = self.create_publisher(
-            PointStamped,
-            '/yolo/scene/centre',
             10)
             
         self.aspect_ratio_publisher = self.create_publisher(
             Float32,
             '/yolo/scene/aspect_ratio',
+            10)
+            
+        self.confidence_publisher = self.create_publisher(
+            Float32,
+            '/yolo/scene/confidence',
+            10)
+            
+            
+        self.centre_publisher = self.create_publisher(
+            PointStamped,
+            '/yolo/scene/centre',
             10)
             
         # 控制处理频率（每秒2帧）
@@ -130,7 +137,7 @@ class YOLOSceneNode(Node):
             cv_image = self.bridge.imgmsg_to_cv2(self.latest_image, desired_encoding='bgr8')
             
             # 使用YOLOv11进行目标检测
-            results = self.model(cv_image, verbose=False)
+            results = self.model(cv_image, verbose=True)
             
             # 发布场景类别
             category_name_msg = String()
@@ -171,10 +178,25 @@ class YOLOSceneNode(Node):
                     # 获取检测类别名称和ID
                     scene_name = self.names[int(best_detection.cls)]
                     scene_id = int(best_detection.cls)
+                    confidence = float(best_detection.conf)
                     
-                    # 设置消息内容
+                    # 填充并发布场景名称消息
                     category_name_msg.data = scene_name
+                    self.scene_name_publisher.publish(category_name_msg)
+                    
+                    # 填充并发布场景ID消息
                     category_id_msg.data = scene_id
+                    self.scene_id_publisher.publish(category_id_msg)
+                    
+                    # 发布长宽比消息
+                    aspect_ratio_msg = Float32()
+                    aspect_ratio_msg.data = aspect_ratio
+                    self.aspect_ratio_publisher.publish(aspect_ratio_msg)
+                    
+                    # 发布置信度消息
+                    confidence_msg = Float32()
+                    confidence_msg.data = confidence
+                    self.confidence_publisher.publish(confidence_msg)
                     
                     # 发布中心点坐标
                     centre_point = PointStamped()
@@ -185,20 +207,13 @@ class YOLOSceneNode(Node):
                     centre_point.point.z = relative_position[2]
                     self.centre_publisher.publish(centre_point)
                     
-                    # 发布长宽比
-                    aspect_ratio_msg = Float32()
-                    aspect_ratio_msg.data = float(aspect_ratio)
-                    self.aspect_ratio_publisher.publish(aspect_ratio_msg)
                     
                     self.get_logger().info(
                         f'Category: {scene_name}, ID: {scene_id}, '
                         f'Position: ({relative_position[0]:.2f}, {relative_position[1]:.2f}, {relative_position[2]:.2f}), '
-                        f'Aspect Ratio: {aspect_ratio:.2f}'
+                        f'Aspect Ratio: {aspect_ratio:.2f}, Confidence: {confidence:.2f}'
                     )
             
-            # 发布检测结果
-            self.category_publisher.publish(category_name_msg)
-            self.category_id_publisher.publish(category_id_msg)
             
         except Exception as e:
             self.get_logger().error(f'Error processing image: {str(e)}')
