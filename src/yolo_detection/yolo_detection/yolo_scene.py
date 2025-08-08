@@ -43,7 +43,7 @@ class YOLOSceneNode(Node):
         
         # 获取包路径
         package_share_directory = get_package_share_directory('yolo_detection')
-        weights_path = os.path.join(package_share_directory, 'weights', 'yolov11m_yihe.pt')
+        weights_path = os.path.join(package_share_directory, 'weights', 'yolo11m_yihe_scene.pt')
         
         # 检查权重文件是否存在
         if not os.path.exists(weights_path):
@@ -63,9 +63,9 @@ class YOLOSceneNode(Node):
 
         # 相机内参矩阵 (硬编码)
         self.camera_matrix = np.array([
-            [512.66309, 0,          346.74937],
-            [0,         513.6353,   329.43823],
-            [0,         0,          1]
+            [769.90804, 0,         630.72981],
+            [0,         769.01435, 494.91907],
+            [0,         0,         1]
         ])
         
         # 已知实物尺寸（硬编码）
@@ -136,8 +136,12 @@ class YOLOSceneNode(Node):
             # 将ROS图像消息转换为OpenCV图像
             cv_image = self.bridge.imgmsg_to_cv2(self.latest_image, desired_encoding='bgr8')
             
+            # 确保图像数据是正确的类型
+            if cv_image.dtype != np.uint8:
+                cv_image = cv_image.astype(np.uint8)
+            
             # 使用YOLOv11进行目标检测
-            results = self.model(cv_image, verbose=True)
+            results = self.model(cv_image, verbose=False)
             
             # 发布场景类别
             category_name_msg = String()
@@ -190,21 +194,21 @@ class YOLOSceneNode(Node):
                     
                     # 发布长宽比消息
                     aspect_ratio_msg = Float32()
-                    aspect_ratio_msg.data = aspect_ratio
+                    aspect_ratio_msg.data = float(aspect_ratio)
                     self.aspect_ratio_publisher.publish(aspect_ratio_msg)
                     
                     # 发布置信度消息
                     confidence_msg = Float32()
-                    confidence_msg.data = confidence
+                    confidence_msg.data = float(confidence)
                     self.confidence_publisher.publish(confidence_msg)
                     
                     # 发布中心点坐标
                     centre_point = PointStamped()
                     centre_point.header.stamp = self.get_clock().now().to_msg()
                     centre_point.header.frame_id = "camera_link"
-                    centre_point.point.x = relative_position[0]
-                    centre_point.point.y = relative_position[1]
-                    centre_point.point.z = relative_position[2]
+                    centre_point.point.x = float(relative_position[0])
+                    centre_point.point.y = float(relative_position[1])
+                    centre_point.point.z = float(relative_position[2])
                     self.centre_publisher.publish(centre_point)
                     
                     

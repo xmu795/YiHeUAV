@@ -30,7 +30,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'yolo_scene = yolo_detection.yolo_scene:main'
+            'yolo_scene = yolo_detection.yolo_scene:main',
+            'yolo_heliport = yolo_detection.yolo_heliport:main'
         ],
     },
 )
